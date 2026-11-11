@@ -1,0 +1,264 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#090a0f">
+<title>ShortTok</title>
+<style>
+:root{--bg:#090a0f;--panel:#141620;--panel2:#1c1f2b;--text:#f7f7fb;--muted:#9da2b3;--accent:#ff315b;--accent2:#27d7c2;--line:#292d3a}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:15px/1.45 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+button,input,select{font:inherit}button{cursor:pointer;color:inherit;border:0}
+.app{min-height:100dvh;max-width:1180px;margin:auto;padding-bottom:76px}
+header{height:64px;display:flex;align-items:center;justify-content:space-between;padding:0 18px;border-bottom:1px solid var(--line);position:sticky;top:0;background:#090a0feF;backdrop-filter:blur(14px);z-index:5}
+.brand{font-size:23px;font-weight:900;letter-spacing:-1px}.brand span{color:var(--accent)}
+.header-actions{display:flex;gap:8px}.iconbtn,.chip,.action{background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:9px 12px}
+main{padding:18px}.tabs{display:flex;gap:8px;overflow:auto;margin-bottom:16px}.tab{padding:10px 16px;border-radius:999px;background:var(--panel);color:var(--muted);white-space:nowrap}.tab.active{background:var(--text);color:#101117;font-weight:750}
+.searchbox{display:flex;gap:8px;margin-bottom:12px}.searchbox input{min-width:0;flex:1;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:13px 15px;color:var(--text);outline:none}.primary{background:var(--accent);padding:12px 17px;border-radius:14px;font-weight:800}
+.filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px}.filters select,.field input,.field select{background:var(--panel);border:1px solid var(--line);color:var(--text);padding:10px;border-radius:11px}
+.status{color:var(--muted);font-size:13px;margin:12px 0}.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:14px}
+.video{background:var(--panel);border:1px solid var(--line);border-radius:16px;overflow:hidden;cursor:pointer;transition:.18s}.video:hover{transform:translateY(-2px);border-color:#555b70}.thumb{width:100%;aspect-ratio:9/14;object-fit:cover;background:#202330;display:block}.video-info{padding:11px}.video-title{font-weight:750;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}.channel{font-size:12px;color:var(--muted);margin-top:6px}.video-actions{display:flex;justify-content:space-between;align-items:center;margin-top:10px}.small{font-size:12px;color:var(--muted)}.heart{background:transparent;font-size:19px;padding:2px 5px}.empty{padding:38px 18px;text-align:center;border:1px dashed var(--line);border-radius:18px;color:var(--muted)}
+.player-wrap{position:fixed;inset:0;background:#000e;z-index:20;display:none;align-items:center;justify-content:center;padding:16px}.player-wrap.open{display:flex}.player{width:min(440px,100%);height:min(82dvh,780px);background:#111;border-radius:18px;overflow:hidden;position:relative}.player iframe{width:100%;height:100%;border:0}.close{position:absolute;right:10px;top:10px;z-index:2;background:#0009;border-radius:50%;width:40px;height:40px;font-size:22px}
+.bottom{position:fixed;bottom:0;left:0;right:0;background:#10121bee;backdrop-filter:blur(16px);border-top:1px solid var(--line);display:flex;justify-content:center;z-index:6}.bottom-inner{width:min(1180px,100%);display:flex;justify-content:space-around;padding:9px 8px calc(9px + env(safe-area-inset-bottom))}.navbtn{background:transparent;color:var(--muted);font-size:12px;display:grid;gap:3px;justify-items:center;min-width:62px}.navbtn b{font-size:20px}.navbtn.active{color:var(--accent)}
+.page{display:none}.page.active{display:block}.section{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:16px;margin:12px 0}.section h3{margin:0 0 12px}.field{display:grid;gap:7px;margin:12px 0}.field label{font-size:13px;color:var(--muted)}.field input{width:100%}.setting{display:flex;align-items:center;justify-content:space-between;gap:15px;padding:11px 0;border-bottom:1px solid var(--line)}.setting:last-child{border:0}.setting small{display:block;color:var(--muted)}.switch{accent-color:var(--accent);width:20px;height:20px}.theme-row{display:flex;gap:9px;flex-wrap:wrap}.theme-dot{padding:10px 14px;border:1px solid var(--line);border-radius:12px;background:var(--panel2)}.theme-dot.selected{outline:2px solid var(--accent)}
+.toast{position:fixed;bottom:82px;left:50%;transform:translateX(-50%);background:#f5f5f7;color:#111;padding:10px 16px;border-radius:99px;z-index:40;display:none;font-weight:700}
+@media(min-width:760px){main{padding:24px}.grid{grid-template-columns:repeat(auto-fill,minmax(220px,1fr))}.thumb{aspect-ratio:9/13}}
+
+/* ShortTok 0.2 visual refresh */
+:root{color-scheme:dark;--ease:cubic-bezier(.2,.8,.2,1)}
+html,body{min-height:100%;background:var(--bg);transition:background .45s var(--ease),color .45s var(--ease)}
+body,header,.bottom,.section,.video,.tab,.iconbtn,.action,.field input,.field select,.searchbox input,.filters select,.theme-dot{transition:background-color .4s var(--ease),color .4s var(--ease),border-color .4s var(--ease),box-shadow .4s var(--ease)}
+header{background:color-mix(in srgb,var(--bg) 91%,transparent);border-color:var(--line)}
+.bottom{background:color-mix(in srgb,var(--panel) 92%,transparent);border-color:var(--line)}
+.section,.video{background:var(--panel);border-color:var(--line)}
+.searchbox input,.filters select,.field input,.field select{background:var(--panel);color:var(--text);border-color:var(--line)}
+.tab{background:var(--panel);color:var(--muted)}.tab.active{background:var(--text);color:var(--bg)}
+.iconbtn,.action,.theme-dot{background:var(--panel2);color:var(--text);border-color:var(--line)}
+.navbtn{color:var(--muted)}.navbtn.active{color:var(--accent)}
+.svg-icon{display:inline-flex;width:22px;height:22px;align-items:center;justify-content:center}
+.svg-icon svg{width:100%;height:100%;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.navbtn .svg-icon{width:23px;height:23px}
+.section{padding:22px;border-radius:20px;margin:16px 0;box-shadow:0 8px 28px #0000000b}
+.section h3{font-size:18px;letter-spacing:-.3px}
+#settingsPage>h2,#modsPage>h2,#savedPage>h2,#historyPage>h2{font-size:28px;letter-spacing:-1px;margin:8px 0 18px}
+.setting{padding:17px 2px}.setting b{font-size:15px}.setting small{font-size:13px;margin-top:3px}
+.switch{width:23px;height:23px;cursor:pointer}
+.field input,.field select{padding:14px 15px;font-size:15px;border-radius:13px}
+.action{padding:12px 16px;border-radius:13px}
+.api-card{background:linear-gradient(145deg,var(--panel),color-mix(in srgb,var(--accent) 8%,var(--panel)))}
+.section-head{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.eyebrow{font-size:10px;letter-spacing:1.7px;color:var(--accent);font-weight:900}
+.api-status{font-size:11px;font-weight:800;border-radius:99px;padding:7px 11px;background:#8b7b2b22;color:#c9a94b}
+.api-status.online{background:#20b98120;color:#23c58a}.api-status.offline{background:#ef53601c;color:#f17480}
+.api-detail{display:flex;align-items:center;gap:13px;padding:16px;margin:16px 0;background:var(--panel2);border:1px solid var(--line);border-radius:16px}
+.api-detail small{display:block;color:var(--muted);margin-top:3px}
+.api-orb{width:42px;height:42px;border-radius:14px;display:grid;place-items:center;background:var(--accent);font-size:19px}
+.hint{font-size:12px;color:var(--muted);line-height:1.6;margin-top:14px}
+.theme-wipe{position:fixed;inset:0;z-index:30;pointer-events:none;background:var(--accent);opacity:0;transform:scale(.96);transition:opacity .18s,transform .45s var(--ease)}
+.theme-wipe.play{opacity:.12;transform:scale(1)}
+.boot-screen{position:fixed;inset:0;z-index:100;background:radial-gradient(ellipse at 50% 40%,color-mix(in srgb,var(--accent) 20%,var(--bg)),var(--bg) 65%);display:flex;flex-direction:column;align-items:center;justify-content:center;transition:opacity .55s,visibility .55s}
+.boot-screen.hidden{opacity:0;visibility:hidden;pointer-events:none}
+.boot-mark{width:76px;height:76px;border-radius:25px;background:var(--accent);display:grid;place-items:center;font-size:34px;font-weight:1000;letter-spacing:-4px;box-shadow:0 15px 55px color-mix(in srgb,var(--accent) 45%,transparent);animation:bootPulse 1.3s ease-in-out infinite alternate}
+.boot-mark span{color:#fff}.boot-title{font-size:30px;font-weight:950;letter-spacing:-1.5px;margin-top:18px}.boot-sub{font-size:13px;color:var(--muted);margin-top:4px}
+.boot-loader{height:4px;width:150px;border-radius:99px;background:var(--panel2);overflow:hidden;margin-top:32px}.boot-loader i{display:block;height:100%;width:40%;border-radius:99px;background:var(--accent);animation:loadingLine 1.1s ease-in-out infinite}
+.boot-version{position:absolute;bottom:32px;font-size:10px;letter-spacing:2px;color:var(--muted)}
+@keyframes loadingLine{0%{transform:translateX(-110%)}100%{transform:translateX(260%)}}
+@keyframes bootPulse{from{transform:translateY(0) scale(.96)}to{transform:translateY(-5px) scale(1.04)}}
+body.light-mode{color-scheme:light}
+body.light-mode .bottom,body.light-mode header{box-shadow:0 4px 22px #29304710}
+body.light-mode .section,body.light-mode .video{box-shadow:0 8px 24px #2930470b}
+@media(min-width:760px){.app{padding-bottom:92px}main{max-width:1040px;margin:auto;padding:30px}.bottom-inner{padding:13px}.navbtn{font-size:13px;gap:5px}.section{padding:26px}.setting{padding:19px 4px}}
+@media(max-width:520px){header{height:58px;padding:0 14px}.brand{font-size:21px}main{padding:14px}.grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.thumb{aspect-ratio:9/14}.video-info{padding:9px}.video-title{font-size:13px}.section{padding:17px}.filters select{font-size:12px;max-width:48%}.navbtn{min-width:52px;font-size:10px}}
+
+
+.category-enter{animation:categoryEnter .38s cubic-bezier(.2,.8,.2,1) both}\n@keyframes categoryEnter{from{opacity:.35;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}\nbody.motion-off *,body.motion-off *::before,body.motion-off *::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}\n/* Global motion system: navigation, categories, cards, panels and controls */
+:root{--motion-fast:180ms;--motion:320ms;--motion-slow:480ms}
+button,.video,.section,.navbtn,.tab,.theme-dot,.action,.iconbtn,.primary,.heart{ -webkit-tap-highlight-color:transparent; }
+button{transition:transform var(--motion-fast) cubic-bezier(.2,.8,.2,1),filter var(--motion-fast),background-color var(--motion) ease,color var(--motion) ease,border-color var(--motion) ease,box-shadow var(--motion) ease}
+button:active{transform:scale(.96)}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+.tab{position:relative;overflow:hidden;transition:color .25s ease,background .3s ease,transform .2s ease,box-shadow .3s ease}
+.tab.active{box-shadow:0 5px 18px color-mix(in srgb,var(--accent) 17%,transparent);animation:tabSelect .32s cubic-bezier(.2,.8,.2,1)}
+.tab::after{content:"";position:absolute;inset:auto 18% 0;height:2px;border-radius:99px;background:var(--accent);transform:scaleX(0);transition:transform .28s ease}
+.tab.active::after{transform:scaleX(1)}
+.page{display:none;opacity:0;transform:translateY(9px)}
+.page.active{display:block;animation:pageEnter .34s cubic-bezier(.2,.8,.2,1) both}
+.video{transform-origin:center;animation:cardEnter .42s cubic-bezier(.2,.8,.2,1) both}
+.video:nth-child(2n){animation-delay:35ms}.video:nth-child(3n){animation-delay:65ms}.video:nth-child(4n){animation-delay:90ms}
+.video:hover{box-shadow:0 12px 28px #0002}
+.thumb{transition:transform .5s cubic-bezier(.2,.8,.2,1),filter .3s}
+.video:hover .thumb{transform:scale(1.025);filter:saturate(1.08)}
+.section{animation:panelEnter .35s ease both}
+.navbtn{position:relative;transition:color .25s ease,transform .2s ease}
+.navbtn.active{animation:navPop .3s cubic-bezier(.2,.8,.2,1)}
+.navbtn.active .svg-icon{animation:iconBounce .36s cubic-bezier(.2,.8,.2,1)}
+.navbtn::before{content:"";position:absolute;top:-9px;width:25px;height:3px;border-radius:99px;background:var(--accent);opacity:0;transform:scaleX(.3);transition:all .25s}
+.navbtn.active::before{opacity:1;transform:scaleX(1)}
+.svg-icon svg{transition:transform .25s ease,stroke .25s ease}
+.iconbtn:hover .svg-icon svg,.action:hover .svg-icon svg{transform:rotate(-7deg) scale(1.08)}
+.setting{transition:background .25s ease,padding .25s ease}
+.setting:active{background:color-mix(in srgb,var(--accent) 5%,transparent)}
+.switch{transition:filter .2s,transform .2s}
+.switch:active{transform:scale(1.12)}
+.searchbox input{transition:border-color .25s,box-shadow .25s,background .3s}
+.searchbox input:focus{box-shadow:0 0 0 4px color-mix(in srgb,var(--accent) 13%,transparent)}
+.primary{position:relative;overflow:hidden}
+.primary::after{content:"";position:absolute;inset:0;background:linear-gradient(110deg,transparent 20%,#ffffff30 48%,transparent 72%);transform:translateX(-130%);transition:transform .65s}
+.primary:hover::after{transform:translateX(130%)}
+.player-wrap{opacity:0;transition:opacity .25s ease}
+.player-wrap.open{opacity:1}
+.player{transform:translateY(18px) scale(.97);transition:transform .32s cubic-bezier(.2,.8,.2,1)}
+.player-wrap.open .player{transform:translateY(0) scale(1)}
+.toast{animation:toastIn .25s ease both}
+.video.loading{opacity:.55;pointer-events:none}.status-pulse{animation:statusPulse .9s ease-in-out infinite alternate}@keyframes statusPulse{from{opacity:.55}to{opacity:1}}
+@keyframes pageEnter{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+@keyframes cardEnter{from{opacity:0;transform:translateY(14px) scale(.985)}to{opacity:1;transform:translateY(0) scale(1)}}
+@keyframes panelEnter{from{opacity:.5;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+@keyframes tabSelect{0%{transform:scale(.94)}65%{transform:scale(1.035)}100%{transform:scale(1)}}
+@keyframes navPop{0%{transform:translateY(2px) scale(.94)}65%{transform:translateY(-2px) scale(1.06)}100%{transform:translateY(0) scale(1)}}
+@keyframes iconBounce{0%{transform:scale(.8) rotate(-8deg)}65%{transform:scale(1.16) rotate(5deg)}100%{transform:scale(1) rotate(0)}}
+@keyframes toastIn{from{opacity:0;transform:translate(-50%,10px)}to{opacity:1;transform:translate(-50%,0)}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important;transition-duration:.01ms!important}}
+
+</style>
+</head>
+<body>
+<div class="boot-screen" id="bootScreen"><div class="boot-mark">S<span>T</span></div><div class="boot-title">ShortTok</div><div class="boot-sub">Твоя короткая видеовселенная</div><div class="boot-loader"><i></i></div><div class="boot-version">WEB EDITION · 0.2.3</div></div>
+<div class="theme-wipe" id="themeWipe"></div>
+<div class="app">
+<header><div class="brand">Short<span>Tok</span></div><div class="header-actions"><button class="iconbtn" id="randomBtn" title="Случайное видео"><span class="svg-icon" data-icon="shuffle"></span></button><button class="iconbtn" id="settingsTop" title="Настройки"><span class="svg-icon" data-icon="settings"></span></button></div></header>
+<main>
+<section class="page active" id="homePage">
+<div class="tabs"><button class="tab active" data-filter="shorts">Для тебя</button><button class="tab" data-filter="popular">Популярное</button><button class="tab" data-filter="music">Музыка</button><button class="tab" data-filter="gaming">Игры</button><button class="tab" data-filter="new">Новое</button></div>
+<div class="searchbox"><input id="query" placeholder="Найти Shorts, канал или тему..." autocomplete="off"><button class="primary" id="searchBtn">Найти</button></div>
+<div class="filters"><select id="sort"><option value="relevance">По релевантности</option><option value="date">Сначала новые</option><option value="viewCount">По просмотрам</option><option value="rating">По рейтингу</option></select><select id="duration"><option value="short">Короткие видео</option><option value="any">Любая длительность</option></select><select id="region"><option value="KZ">Казахстан</option><option value="US">США</option><option value="RU">Россия</option><option value="GB">Великобритания</option></select></div>
+<div class="status" id="status">Добавь YouTube API-ключ в настройках, чтобы искать реальные видео. Можно также открыть демонстрационный режим.</div>
+<div class="grid" id="videos"></div>
+<div class="empty" id="empty">🎬<br><b>Твоя лента ждёт видео</b><br><span class="small">Введи запрос или включи демонстрационный режим в настройках.</span></div>
+</section>
+<section class="page" id="savedPage"><h2>Избранное</h2><div class="status">Видео, которые ты сохранил.</div><div class="grid" id="savedGrid"></div><div class="empty" id="savedEmpty">Здесь пока пусто ⭐</div></section>
+<section class="page" id="historyPage"><h2>История</h2><div class="status">Недавно открытые видео на этом устройстве.</div><div class="grid" id="historyGrid"></div><div class="empty" id="historyEmpty">История просмотров пока пуста ◷</div><button class="action" id="clearHistory">Очистить историю</button></section>
+<section class="page" id="modsPage"><h2>Модификации</h2><div class="section"><h3>Стили интерфейса</h3><div class="theme-row"><button class="theme-dot" data-theme="dark">🌑 Dark</button><button class="theme-dot" data-theme="light">☀️ Light</button><button class="theme-dot" data-theme="neon">💜 Neon</button><button class="theme-dot" data-theme="ocean">🌊 Ocean</button></div></div><div class="section"><h3>Модули</h3><div class="setting"><div><b>Компактные карточки</b><small>Уменьшает промежутки в ленте</small></div><input class="switch" type="checkbox" data-pref="compact"></div><div class="setting"><div><b>Показывать канал</b><small>Имя автора под видео</small></div><input class="switch" type="checkbox" data-pref="showChannel" checked></div><div class="setting"><div><b>Анимации интерфейса</b><small>Плавное появление элементов</small></div><input class="switch" type="checkbox" data-pref="animations" checked></div><div class="setting"><div><b>Автовоспроизведение</b><small>Открывать видео сразу при выборе</small></div><input class="switch" type="checkbox" data-pref="autoplay" checked></div></div><div class="section"><h3>Экспериментальные темы</h3><p class="small">В будущем сюда можно добавлять пользовательские CSS-темы и наборы оформления.</p><button class="action" id="resetMods">Сбросить модификации</button></div></section>
+<section class="page" id="settingsPage"><h2>Настройки</h2><div class="section api-card"><div class="section-head"><div><span class="eyebrow">ПОДКЛЮЧЕНИЕ</span><h3>YouTube API</h3></div><span class="api-status" id="apiStatus">Проверка…</span></div><p class="small">ShortTok автоматически обращается к серверу сайта. API-ключ хранится на сервере и не показывается в браузере.</p><div class="api-detail"><span class="api-orb">▶</span><div><b id="apiStatusTitle">Проверяем подключение</b><small id="apiStatusText">Связываемся с сервером ShortTok…</small></div></div><button class="action" id="checkApi">Проверить подключение</button><p class="hint">Для реального поиска владелец сервера один раз задаёт YOUTUBE_API_KEY в настройках хостинга. В одиночном HTML-файле секретный ключ безопасно скрыть невозможно.</p></div><div class="section"><h3>Поиск и данные</h3><div class="setting"><div><b>Демонстрационный режим</b><small>Показывает тестовые карточки без подключения к YouTube</small></div><input class="switch" type="checkbox" id="demoMode"></div><div class="setting"><div><b>Сохранять историю</b><small>История остаётся на этом устройстве</small></div><input class="switch" type="checkbox" id="saveHistory" checked></div><button class="action" id="exportData">Экспорт настроек JSON</button> <button class="action" id="resetAll">Сбросить данные</button></div><div class="section"><h3>О ShortTok</h3><div class="small">ShortTok Web · 0.2.3<br>Неофициальный интерфейс для поиска и просмотра видео YouTube. Не связан с TikTok или Google.</div></div></section>
+</main>
+</div>
+<div class="bottom"><div class="bottom-inner"><button class="navbtn active" data-page="homePage"><span class="svg-icon" data-icon="home"></span>Лента</button><button class="navbtn" data-page="savedPage"><span class="svg-icon" data-icon="bookmark"></span>Избранное</button><button class="navbtn" data-page="historyPage"><span class="svg-icon" data-icon="history"></span>История</button><button class="navbtn" data-page="modsPage"><span class="svg-icon" data-icon="sparkles"></span>Моды</button><button class="navbtn" data-page="settingsPage"><span class="svg-icon" data-icon="settings"></span>Настройки</button></div></div>
+<div class="player-wrap" id="playerWrap"><div class="player"><button class="close" id="closePlayer">×</button><iframe id="playerFrame" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe></div></div>
+<div class="toast" id="toast"></div>
+<script>
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const defaults={theme:'dark',compact:false,showChannel:true,animations:true,autoplay:true,saveHistory:true,demo:false};
+let prefs={...defaults,...JSON.parse(localStorage.getItem('st_prefs')||'{}')};
+let videos=[],saved=JSON.parse(localStorage.getItem('st_saved')||'[]'),history=JSON.parse(localStorage.getItem('st_history')||'[]');
+let currentQuery='';let searchRequestId=0;
+function persist(){localStorage.setItem('st_prefs',JSON.stringify(prefs));localStorage.setItem('st_saved',JSON.stringify(saved));localStorage.setItem('st_history',JSON.stringify(history))}
+function toast(t){let x=$('#toast');x.textContent=t;x.style.display='block';setTimeout(()=>x.style.display='none',1900)}
+function applyPrefs(){document.body.classList.toggle('light-mode',prefs.theme==='light');document.body.classList.toggle('motion-off',!prefs.animations);let themes={dark:['#090a0f','#141620','#1c1f2b','#f7f7fb','#9da2b3','#ff315b','#292d3a'],light:['#f2f3f8','#fff','#e8eaf1','#151722','#626779','#ed3158','#dfe1ea'],neon:['#100b1b','#201332','#2d1947','#fff5ff','#b9a5d0','#db42ff','#49305e'],ocean:['#07131b','#10232e','#183644','#effaff','#9db8c7','#22c6d8','#244654']};let t=themes[prefs.theme]||themes.dark;['--bg','--panel','--panel2','--text','--muted','--accent','--line'].forEach((k,i)=>document.documentElement.style.setProperty(k,t[i]));$('#videos').style.gap=prefs.compact?'7px':'14px';$$('[data-pref]').forEach(e=>e.checked=!!prefs[e.dataset.pref]);$$('[data-theme]').forEach(e=>e.classList.toggle('selected',e.dataset.theme===prefs.theme));$('#demoMode').checked=prefs.demo;$('#saveHistory').checked=prefs.saveHistory;persist()}
+function esc(s=''){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function card(v){let isSaved=saved.some(x=>x.id===v.id);return `<article class="video" data-id="${esc(v.id)}"><img class="thumb" loading="lazy" src="${esc(v.thumb||'')}" alt=""><div class="video-info"><div class="video-title">${esc(v.title)}</div>${prefs.showChannel?`<div class="channel">${esc(v.channel||'YouTube')}</div>`:''}<div class="video-actions"><span class="small">${esc(v.date||'YouTube')}</span><button class="heart" data-save="${esc(v.id)}" title="Избранное">${isSaved?'♥':'♡'}</button></div></div></article>`}
+function renderGrid(target,arr,empty){$(target).innerHTML=arr.map(card).join('');$(empty).style.display=arr.length?'none':'block';$$(target+' .video').forEach(el=>el.addEventListener('click',e=>{if(e.target.closest('[data-save]'))return;openVideo(el.dataset.id)}));$$(target+' [data-save]').forEach(b=>b.addEventListener('click',e=>{e.stopPropagation();toggleSave(b.dataset.save)}))}
+function render(){renderGrid('#videos',videos,'#empty');renderGrid('#savedGrid',saved,'#savedEmpty');renderGrid('#historyGrid',history,'#historyEmpty')}
+function toggleSave(id){let v=videos.concat(saved,history).find(x=>x.id===id);if(!v)return;if(saved.some(x=>x.id===id))saved=saved.filter(x=>x.id!==id);else saved.unshift(v);persist();render();toast(saved.some(x=>x.id===id)?'Добавлено в избранное':'Удалено из избранного')}
+function openVideo(id){if(String(id).startsWith('demo')){toast('В демо-режиме это пример карточки, а не реальное видео');return}let v=videos.concat(saved,history).find(x=>x.id===id);if(!v)return;$('#playerFrame').src='https://www.youtube-nocookie.com/embed/'+encodeURIComponent(id)+'?autoplay='+(prefs.autoplay?1:0)+'&playsinline=1&rel=0';$('#playerWrap').classList.add('open');if(prefs.saveHistory){history=[v,...history.filter(x=>x.id!==id)].slice(0,60);persist();render()}}
+function closeVideo(){$('#playerFrame').src='';$('#playerWrap').classList.remove('open')}
+$('#closePlayer').onclick=closeVideo;$('#playerWrap').addEventListener('click',e=>{if(e.target===$('#playerWrap'))closeVideo()});
+async function search(q,category=null){
+q=q.trim();if(!q){toast('Введи поисковый запрос');return}
+const requestId=++searchRequestId;currentQuery=q;$('#query').value=q;
+$('#status').textContent='Ищем видео на YouTube…';
+$('#status').classList.remove('status-pulse');void $('#status').offsetWidth;$('#status').classList.add('status-pulse');
+$('#empty').style.display='none';
+if(prefs.demo){demoSearch(q,category);return}
+let params=new URLSearchParams({q,order:$('#sort').value,region:$('#region').value,duration:$('#duration').value});
+try{
+  let r=await fetch('/api/search?'+params.toString(),{headers:{'Accept':'application/json'}});
+  let data=await r.json();
+  if(requestId!==searchRequestId)return;
+  if(!r.ok)throw new Error(data.error||'Сервер ShortTok не настроен');
+  videos=(data.items||[]).map(x=>({id:x.id,title:x.title,channel:x.channel,thumb:x.thumb,date:x.date||'YouTube'}));
+  $('#status').textContent=`Найдено видео: ${videos.length}. Короткая длительность не всегда означает, что ролик официально помечен как Shorts.`;
+  render();if(!videos.length)$('#empty').style.display='block';
+}catch(e){
+  if(requestId!==searchRequestId)return;
+  if(location.hostname.endsWith('github.io')||location.protocol==='file:'){
+    demoSearch(q,category);
+    $('#status').textContent='GitHub Pages: показаны демонстрационные карточки. Для реального поиска YouTube нужен внешний API-сервер.';
+    return;
+  }
+  videos=[];render();$('#status').textContent='Поиск пока недоступен: '+e.message+'. Проверь запуск сервера и настройку YouTube API.';$('#empty').style.display='block';
+}}
+function demoSearch(q,category=null){
+const packs={
+  shorts:['Подборка дня','Смешные моменты','Неожиданные открытия','Красивые места'],
+  popular:['Самые популярные','Тренды недели','Миллионы просмотров','Вирусные моменты'],
+  music:['Музыкальный клип','Ритм и танцы','Музыкальный монтаж','Новый бит'],
+  gaming:['Игровой момент','Minecraft','Эпичные победы','Игровые мемы'],
+  new:['Свежая загрузка','Новые авторы','Недавние ролики','Сегодня в ленте']
+};
+const seeds=packs[category||activeCategory]||packs.shorts;
+const tag=category||activeCategory;
+videos=Array.from({length:12},(_,i)=>({
+  id:'demo-'+tag+'-'+i,
+  title:(categoryLabels[tag]||'Shorts')+' · '+seeds[i%seeds.length],
+  channel:['Demo Studio','ShortTok Lab','Video World'][i%3],
+  thumb:`https://picsum.photos/seed/shorttok-${tag}-${i}/360/600`,
+  date:'DEMO'
+}));
+$('#status').textContent='Демонстрационный режим: карточки тестовые, это не реальные ролики YouTube.';
+render();
+}
+$('#searchBtn').onclick=()=>search($('#query').value,null);$('#query').addEventListener('keydown',e=>{if(e.key==='Enter')search($('#query').value,null)});
+
+const categoryQueries={shorts:'trending shorts',popular:'popular shorts',music:'music shorts',gaming:'gaming shorts',new:'latest shorts'};
+const categoryLabels={shorts:'Для тебя',popular:'Популярное',music:'Музыка',gaming:'Игры',new:'Новое'};
+let activeCategory='shorts';
+function activateCategory(button){
+  if(!button)return;
+  const key=button.dataset.filter;
+  if(!categoryQueries[key])return;
+  activeCategory=key;
+  $$('.tab').forEach(x=>x.classList.toggle('active',x.dataset.filter===key));
+  $('#videos').classList.remove('category-enter');
+  void $('#videos').offsetWidth;
+  $('#videos').classList.add('category-enter');
+  window.scrollTo({top:0,behavior:prefs.animations?'smooth':'auto'});
+  search(categoryQueries[key], key);
+}
+$('.tabs').addEventListener('click',e=>{
+  const button=e.target.closest('.tab');
+  if(!button)return;
+  e.preventDefault();
+  activateCategory(button);
+},true);
+$$('.navbtn').forEach(b=>b.onclick=()=>showPage(b.dataset.page,b));function showPage(id,btn){$$('.page').forEach(x=>x.classList.remove('active'));$('#'+id).classList.add('active');$$('.navbtn').forEach(x=>x.classList.toggle('active',x===btn));window.scrollTo({top:0,behavior:prefs.animations?'smooth':'auto'});if(id==='savedPage'||id==='historyPage')render()}
+$('#settingsTop').onclick=()=>showPage('settingsPage',$('[data-page="settingsPage"]'));
+
+
+$$('[data-theme]').forEach(b=>b.onclick=()=>{let wipe=$('#themeWipe');wipe.classList.add('play');setTimeout(()=>{prefs.theme=b.dataset.theme;document.body.classList.toggle('light-mode',prefs.theme==='light');applyPrefs();setTimeout(()=>wipe.classList.remove('play'),120)},150)});
+$$('[data-pref]').forEach(e=>e.onchange=()=>{prefs[e.dataset.pref]=e.checked;applyPrefs()});
+$('#demoMode').onchange=()=>{prefs.demo=$('#demoMode').checked;applyPrefs();toast(prefs.demo?'Демо-режим включён':'Демо-режим выключен')};
+$('#saveHistory').onchange=()=>{prefs.saveHistory=$('#saveHistory').checked;applyPrefs()};
+$('#resetMods').onclick=()=>{prefs={...prefs,theme:'dark',compact:false,showChannel:true,animations:true,autoplay:true};applyPrefs();toast('Модификации сброшены')};
+$('#clearHistory').onclick=()=>{history=[];persist();render();toast('История очищена')};
+$('#resetAll').onclick=()=>{if(confirm('Удалить настройки, ключ, избранное и историю?')){localStorage.removeItem('st_prefs');localStorage.removeItem('st_saved');localStorage.removeItem('st_history');localStorage.removeItem('st_api');location.reload()}};
+$('#exportData').onclick=()=>{let blob=new Blob([JSON.stringify({prefs,saved,history},null,2)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='shorttok-settings.json';a.click();URL.revokeObjectURL(a.href)};
+$('#randomBtn').onclick=()=>{if(!videos.length){toast('Сначала найди видео');return}openVideo(videos[Math.floor(Math.random()*videos.length)].id)};
+
+const iconPaths={
+home:'<path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/>',
+bookmark:'<path d="M6 4.5A1.5 1.5 0 0 1 7.5 3h9A1.5 1.5 0 0 1 18 4.5V21l-6-4-6 4z"/>',
+history:'<path d="M3 12a9 9 0 1 0 2.6-6.4L3 8"/><path d="M3 3v5h5m4-1v5l3 2"/>',
+sparkles:'<path d="m12 3 1.7 5.3L19 10l-5.3 1.7L12 17l-1.7-5.3L5 10l5.3-1.7z"/><path d="m19 14 .9 2.1L22 17l-2.1.9L19 20l-.9-2.1L16 17l2.1-.9z"/>',
+settings:'<circle cx="12" cy="12" r="3.2"/><path d="M19.4 13.5a7.8 7.8 0 0 0 0-3l1.7-1.3-1.8-3.1-2 .8a7.8 7.8 0 0 0-2.6-1.5L14.4 3h-4.8L9.3 5.4a7.8 7.8 0 0 0-2.6 1.5l-2-.8-1.8 3.1 1.7 1.3a7.8 7.8 0 0 0 0 3l-1.7 1.3 1.8 3.1 2-.8a7.8 7.8 0 0 0 2.6 1.5l.3 2.4h4.8l.3-2.4a7.8 7.8 0 0 0 2.6-1.5l2 .8 1.8-3.1z"/>',
+shuffle:'<path d="m16 3 5 5-5 5"/><path d="M4 7h3c5 0 5 10 10 10h4"/><path d="m16 14 5 5-5 5"/><path d="M4 17h3c1.5 0 2.5-1 3.3-2.3"/>'
+};
+function paintIcons(){document.querySelectorAll('[data-icon]').forEach(el=>{let p=iconPaths[el.dataset.icon];if(p)el.innerHTML=`<svg viewBox="0 0 24 24" aria-hidden="true">${p}</svg>`})}
+async function checkApi(){let pill=$('#apiStatus'),title=$('#apiStatusTitle'),desc=$('#apiStatusText');try{let r=await fetch('/api/config');let d=await r.json();if(!r.ok)throw new Error('Сервер недоступен');if(d.youtubeConfigured){pill.textContent='Подключено';pill.className='api-status online';title.textContent='YouTube API готов';desc.textContent='Поиск доступен через сервер ShortTok.'}else{pill.textContent='Не настроено';pill.className='api-status offline';title.textContent='Нужна настройка сервера';desc.textContent='Владелец сайта должен добавить ключ YouTube API на сервере.'}}catch(e){pill.textContent='Нет сервера';pill.className='api-status offline';title.textContent='Сервер ShortTok не найден';desc.textContent='Открой сайт через запущенный сервер, а не как локальный HTML-файл.'}}
+$('#checkApi').onclick=checkApi;
+
+paintIcons();
+applyPrefs();render();checkApi();
+window.addEventListener('load',()=>setTimeout(()=>$('#bootScreen').classList.add('hidden'),850));
+
+</script>
+</body></html>
